@@ -86,7 +86,7 @@ export default function StudentApp({ profile, onSignOut }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_KEY}` },
         body: JSON.stringify({
-          model: 'llama3-8b-8192',
+          model: 'llama-3.3-70b-versatile',
           messages: [
             { role: 'system', content: 'You are an expert K53 driving tutor for South Africa. Answer questions about road signs, K53 theory, driving manoeuvres, and DLTC test tips clearly and concisely. Keep answers under 150 words.' },
             ...aiChat.map(m => ({ role: m.role, content: m.text })),
