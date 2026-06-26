@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from './supabase.js'
-import { T, GlassCard, NeuBtn, Input, Alert, EmptyState, StatCard, BottomNav, AppHeader, Badge, ProgressBar, TopBar } from './ui.jsx'
+import { T, GlassCard, NeuBtn, Input, Alert, EmptyState, StatCard, BottomNav, AppHeader, Badge, ProgressBar, TopBar, AppShell } from './ui.jsx'
 
 const GROQ_API = 'https://api.groq.com/openai/v1/chat/completions'
 const GROQ_KEY = import.meta.env.VITE_GROQ_API_KEY
@@ -306,7 +306,7 @@ export default function StudentApp({ profile, onSignOut }) {
               <div style={{ fontSize: 36, background: T.tealGlow, borderRadius: 14, width: 56, height: 56, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>🧠</div>
               <div>
                 <div style={{ fontWeight: 700, fontSize: 16, color: T.text }}>AI Driving Assistant</div>
-                <div style={{ fontSize: 13, color: T.teal, marginTop: 2 }}>K53 Specialist · Powered by Groq AI</div>
+                <div style={{ fontSize: 13, color: T.teal, marginTop: 2 }}>K53 Specialist · Available 24/7</div>
                 <div style={{ fontSize: 12, color: T.textSub, marginTop: 6 }}>Ask about road signs, manoeuvres, K53 theory & test tips.</div>
               </div>
             </div>

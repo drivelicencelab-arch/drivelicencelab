@@ -1,9 +1,8 @@
-// ── Design Tokens ────────────────────────────────────────────────────────────
+// ── Design Tokens ─────────────────────────────────────────────────────────────
 export const T = {
-  // Palette — teal-on-dark, matching the logo's cyan-blue
   bg:        '#0D1117',
   bgCard:    '#161B22',
-  bgGlass:   'rgba(22,27,34,0.85)',
+  bgGlass:   'rgba(22,27,34,0.92)',
   border:    '#21262D',
   borderHi:  '#30363D',
   teal:      '#00C9C8',
@@ -22,6 +21,13 @@ export const T = {
   textSub:   '#8B949E',
   textMuted: '#484F58',
   white:     '#FFFFFF',
+}
+
+// ── Responsive helper ─────────────────────────────────────────────────────────
+export const useWindowSize = () => {
+  if (typeof window === 'undefined') return { w: 480, isTablet: false, isDesktop: false }
+  const w = window.innerWidth
+  return { w, isTablet: w >= 768, isDesktop: w >= 1024 }
 }
 
 // ── GlassCard ─────────────────────────────────────────────────────────────────
@@ -60,6 +66,7 @@ export const NeuBtn = ({ children, onClick, color, outline, full, small, danger,
       gap: 8,
       boxShadow: disabled || outline ? 'none' : `0 4px 16px ${c}44`,
       transition: 'all .2s',
+      whiteSpace: 'nowrap',
     }}>
       {icon && <span style={{fontSize: small ? 14 : 18}}>{icon}</span>}
       {children}
@@ -76,7 +83,7 @@ export const Input = ({ label, value, onChange, placeholder, type = 'text', requ
       </label>
     )}
     <div style={{ position: 'relative' }}>
-      {icon && <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 18, opacity: .6 }}>{icon}</span>}
+      {icon && <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 18, opacity: .6, pointerEvents: 'none' }}>{icon}</span>}
       <input
         value={value} onChange={onChange} placeholder={placeholder} type={type}
         style={{
@@ -97,8 +104,8 @@ export const Alert = ({ msg, type = 'error' }) => {
   if (!msg) return null
   const c = type === 'error' ? T.red : type === 'success' ? T.green : T.yellow
   return (
-    <div style={{ background: c+'15', border: `1px solid ${c}44`, borderRadius: 12, padding: '12px 16px', color: c, fontSize: 14, marginBottom: 16, display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-      <span>{type === 'error' ? '⚠️' : type === 'success' ? '✅' : 'ℹ️'}</span>
+    <div style={{ background: c+'15', border: `1px solid ${c}44`, borderRadius: 12, padding: '12px 16px', color: c, fontSize: 14, marginBottom: 16, display: 'flex', alignItems: 'flex-start', gap: 8, lineHeight: 1.5 }}>
+      <span style={{flexShrink:0}}>{type === 'error' ? '⚠️' : type === 'success' ? '✅' : 'ℹ️'}</span>
       <span>{msg}</span>
     </div>
   )
@@ -115,22 +122,110 @@ export const EmptyState = ({ icon = '🚗', title, subtitle, action, actionLabel
 )
 
 // ── StatCard ──────────────────────────────────────────────────────────────────
-export const StatCard = ({ icon, value, label, color, sub }) => (
-  <GlassCard glow={color} style={{ flex: 1, textAlign: 'center', padding: 16, minWidth: 0 }}>
+export const StatCard = ({ icon, value, label, color }) => (
+  <GlassCard glow={color} style={{ flex: 1, textAlign: 'center', padding: '16px 12px', minWidth: 0 }}>
     <div style={{ fontSize: 24, marginBottom: 4 }}>{icon}</div>
-    <div style={{ fontFamily: "'Poppins',sans-serif", fontWeight: 800, fontSize: 22, color: color || T.text }}>{value}</div>
-    <div style={{ fontSize: 11, color: T.textSub, marginTop: 2 }}>{label}</div>
-    {sub && <div style={{ fontSize: 11, color: color, marginTop: 4, fontWeight: 600 }}>{sub}</div>}
+    <div style={{ fontFamily: "'Poppins',sans-serif", fontWeight: 800, fontSize: 22, color: color || T.text, lineHeight: 1 }}>{value}</div>
+    <div style={{ fontSize: 11, color: T.textSub, marginTop: 4 }}>{label}</div>
   </GlassCard>
 )
 
-// ── BottomNav ─────────────────────────────────────────────────────────────────
+// ── Badge ─────────────────────────────────────────────────────────────────────
+export const Badge = ({ label, color }) => (
+  <span style={{ background: (color||T.teal)+'20', color: color||T.teal, border: `1px solid ${(color||T.teal)}44`, borderRadius: 20, padding: '3px 10px', fontSize: 11, fontWeight: 700, letterSpacing: '.3px', whiteSpace: 'nowrap' }}>{label}</span>
+)
+
+// ── ProgressBar ───────────────────────────────────────────────────────────────
+export const ProgressBar = ({ value, max, color, height = 6 }) => (
+  <div style={{ height, background: T.border, borderRadius: height, overflow: 'hidden' }}>
+    <div style={{ height, background: color || T.teal, borderRadius: height, width: `${Math.min((value/max)*100,100)}%`, transition: 'width .5s', boxShadow: `0 0 8px ${color||T.teal}88` }} />
+  </div>
+)
+
+// ── Logo ──────────────────────────────────────────────────────────────────────
+export const Logo = ({ size = 36 }) => (
+  <img src="/logo.webp" alt="DriveLicenceLab" style={{ width: size, height: size, objectFit: 'contain', flexShrink: 0 }} />
+)
+
+// ── TopBar ────────────────────────────────────────────────────────────────────
+export const TopBar = ({ title, subtitle, onBack, action, actionLabel, actionColor }) => (
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 10 }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+      {onBack && (
+        <button onClick={onBack} style={{ background: T.bgCard, border: `1px solid ${T.border}`, borderRadius: 12, width: 40, height: 40, cursor: 'pointer', fontSize: 20, color: T.text, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>‹</button>
+      )}
+      <div>
+        <div style={{ fontFamily: "'Poppins',sans-serif", fontWeight: 800, color: T.text, fontSize: 'clamp(18px, 4vw, 24px)' }}>{title}</div>
+        {subtitle && <div style={{ fontSize: 13, color: T.textSub, marginTop: 2 }}>{subtitle}</div>}
+      </div>
+    </div>
+    {action && <NeuBtn onClick={action} small color={actionColor || T.teal}>{actionLabel}</NeuBtn>}
+  </div>
+)
+
+// ── Desktop Sidebar ───────────────────────────────────────────────────────────
+export const DesktopSidebar = ({ tabs, active, setActive, role, name, onSignOut }) => {
+  const roleColors = { student: T.teal, instructor: T.green, admin: T.orange, test_officer: T.purple, system_admin: T.red }
+  const roleLabels = { student: 'Student', instructor: 'Instructor', admin: 'School Admin', test_officer: 'Test Officer', system_admin: 'System Admin' }
+  return (
+    <div style={{
+      background: T.bgCard,
+      borderRight: `1px solid ${T.border}`,
+      height: '100vh',
+      position: 'sticky',
+      top: 0,
+      display: 'flex',
+      flexDirection: 'column',
+      padding: '24px 16px',
+      overflowY: 'auto',
+    }}>
+      {/* Logo */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 32, padding: '0 8px' }}>
+        <Logo size={40} />
+        <div>
+          <div style={{ fontFamily: "'Poppins',sans-serif", fontWeight: 900, color: T.text, fontSize: 16, lineHeight: 1 }}>DriveLicenceLab</div>
+          <div style={{ fontSize: 11, color: roleColors[role] || T.teal, fontWeight: 600, marginTop: 2 }}>{roleLabels[role]}</div>
+        </div>
+      </div>
+
+      {/* Nav items */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
+        {tabs.map(t => (
+          <button key={t.id} onClick={() => setActive(t.id)} style={{
+            display: 'flex', alignItems: 'center', gap: 12,
+            padding: '12px 16px', borderRadius: 12,
+            background: active === t.id ? T.teal+'20' : 'transparent',
+            border: `1px solid ${active === t.id ? T.teal+'44' : 'transparent'}`,
+            color: active === t.id ? T.teal : T.textSub,
+            fontWeight: active === t.id ? 700 : 500,
+            fontSize: 14, cursor: 'pointer',
+            fontFamily: "'Space Grotesk',sans-serif",
+            transition: 'all .2s', textAlign: 'left', width: '100%',
+          }}>
+            <span style={{ fontSize: 20, width: 24, textAlign: 'center' }}>{t.icon}</span>
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {/* User info + sign out */}
+      <div style={{ borderTop: `1px solid ${T.border}`, paddingTop: 16, marginTop: 16 }}>
+        <div style={{ padding: '8px 8px 12px', fontSize: 13, color: T.textSub, fontWeight: 600 }}>{name}</div>
+        <button onClick={onSignOut} style={{ width: '100%', padding: '10px 16px', background: T.redGlow, border: `1px solid ${T.red}44`, borderRadius: 12, color: T.red, fontWeight: 700, fontSize: 13, cursor: 'pointer', fontFamily: "'Space Grotesk',sans-serif" }}>
+          Sign Out
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ── Mobile Bottom Nav ─────────────────────────────────────────────────────────
 export const BottomNav = ({ tabs, active, setActive }) => (
-  <div style={{
-    position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)',
-    width: '100%', maxWidth: 480,
+  <div className="bottom-nav-mobile" style={{
+    position: 'fixed', bottom: 0, left: 0, right: 0,
     background: T.bgGlass, borderTop: `1px solid ${T.border}`,
     backdropFilter: 'blur(20px)', display: 'flex', zIndex: 200,
+    paddingBottom: 'env(safe-area-inset-bottom, 0px)',
   }}>
     {tabs.map(t => (
       <button key={t.id} onClick={() => setActive(t.id)} style={{
@@ -148,57 +243,58 @@ export const BottomNav = ({ tabs, active, setActive }) => (
   </div>
 )
 
-// ── TopBar ────────────────────────────────────────────────────────────────────
-export const TopBar = ({ title, subtitle, onBack, action, actionLabel, actionColor }) => (
-  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-      {onBack && (
-        <button onClick={onBack} style={{ background: T.bgCard, border: `1px solid ${T.border}`, borderRadius: 12, width: 40, height: 40, cursor: 'pointer', fontSize: 20, color: T.text, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>‹</button>
+// ── Responsive App Shell ──────────────────────────────────────────────────────
+// Wraps each role app — shows sidebar on desktop, bottom nav on mobile
+export const AppShell = ({ tabs, active, setActive, role, name, onSignOut, children }) => {
+  const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 1024
+
+  return (
+    <div style={{ display: 'flex', minHeight: '100vh', width: '100%' }}>
+      {/* Desktop sidebar */}
+      {isDesktop && (
+        <div style={{ width: 260, flexShrink: 0 }}>
+          <DesktopSidebar tabs={tabs} active={active} setActive={setActive} role={role} name={name} onSignOut={onSignOut} />
+        </div>
       )}
-      <div>
-        <div style={{ fontFamily: "'Poppins',sans-serif", fontWeight: 800, color: T.text, fontSize: 22 }}>{title}</div>
-        {subtitle && <div style={{ fontSize: 13, color: T.textSub, marginTop: 2 }}>{subtitle}</div>}
+
+      {/* Main content */}
+      <div style={{
+        flex: 1,
+        paddingBottom: isDesktop ? 0 : 80,
+        background: T.bg,
+        minHeight: '100vh',
+        maxWidth: isDesktop ? '100%' : undefined,
+        overflowX: 'hidden',
+      }}>
+        {/* Mobile header */}
+        {!isDesktop && <AppHeader role={role} name={name} onSignOut={onSignOut} />}
+        <div style={{ padding: isDesktop ? '32px 40px' : '20px 16px', maxWidth: isDesktop ? 900 : undefined }}>
+          {children}
+        </div>
       </div>
+
+      {/* Mobile bottom nav */}
+      {!isDesktop && <BottomNav tabs={tabs} active={active} setActive={setActive} />}
     </div>
-    {action && <NeuBtn onClick={action} small color={actionColor || T.teal}>{actionLabel}</NeuBtn>}
-  </div>
-)
+  )
+}
 
-// ── Badge ─────────────────────────────────────────────────────────────────────
-export const Badge = ({ label, color }) => (
-  <span style={{ background: (color||T.teal)+'20', color: color||T.teal, border: `1px solid ${(color||T.teal)}44`, borderRadius: 20, padding: '3px 10px', fontSize: 11, fontWeight: 700, letterSpacing: '.3px' }}>{label}</span>
-)
-
-// ── ProgressBar ───────────────────────────────────────────────────────────────
-export const ProgressBar = ({ value, max, color, height = 6 }) => (
-  <div style={{ height, background: T.border, borderRadius: height, overflow: 'hidden' }}>
-    <div style={{ height, background: color || T.teal, borderRadius: height, width: `${Math.min((value/max)*100,100)}%`, transition: 'width .5s', boxShadow: `0 0 8px ${color||T.teal}88` }} />
-  </div>
-)
-
-// ── Logo ──────────────────────────────────────────────────────────────────────
-export const Logo = ({ size = 36 }) => (
-  <img src="/logo.webp" alt="DriveLicenceLab" style={{ width: size, height: size, objectFit: 'contain' }} />
-)
-
-// ── AppHeader ─────────────────────────────────────────────────────────────────
+// ── App Header (mobile only) ──────────────────────────────────────────────────
 export const AppHeader = ({ role, name, onSignOut }) => {
   const roleColors = { student: T.teal, instructor: T.green, admin: T.orange, test_officer: T.purple, system_admin: T.red }
   const roleLabels = { student: 'Student', instructor: 'Instructor', admin: 'School Admin', test_officer: 'Test Officer', system_admin: 'System Admin' }
   return (
-    <div style={{ background: T.bgGlass, borderBottom: `1px solid ${T.border}`, backdropFilter: 'blur(20px)', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100 }}>
+    <div style={{ background: T.bgGlass, borderBottom: `1px solid ${T.border}`, backdropFilter: 'blur(20px)', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <Logo size={32} />
+        <Logo size={30} />
         <div>
-          <div style={{ fontFamily: "'Poppins',sans-serif", fontWeight: 800, color: T.text, fontSize: 15, lineHeight: 1 }}>DriveLicenceLab</div>
+          <div style={{ fontFamily: "'Poppins',sans-serif", fontWeight: 800, color: T.text, fontSize: 14, lineHeight: 1 }}>DriveLicenceLab</div>
           <div style={{ fontSize: 11, color: roleColors[role] || T.teal, fontWeight: 600 }}>{roleLabels[role] || role}</div>
         </div>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <div style={{ textAlign: 'right' }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: T.text }}>{name}</div>
-        </div>
-        <button onClick={onSignOut} style={{ background: T.redGlow, border: `1px solid ${T.red}44`, borderRadius: 10, padding: '6px 12px', cursor: 'pointer', fontSize: 12, color: T.red, fontWeight: 600 }}>Sign Out</button>
+        <span style={{ fontSize: 12, color: T.textSub, maxWidth: 80, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</span>
+        <button onClick={onSignOut} style={{ background: T.redGlow, border: `1px solid ${T.red}44`, borderRadius: 8, padding: '5px 10px', cursor: 'pointer', fontSize: 11, color: T.red, fontWeight: 700, whiteSpace: 'nowrap' }}>Sign Out</button>
       </div>
     </div>
   )
