@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0"/>
+    <link rel="icon" type="image/webp" href="/logo.webp"/>
+    <link rel="apple-touch-icon" href="/logo.webp"/>
+
+    <!-- Primary SEO -->
+    <title>DriveLicenceLab | SA K53 Driver Training Platform</title>
+    <meta name="description" content="DriveLicenceLab is South Africa's leading K53 driver training platform. Students track licence readiness, instructors manage sessions, and schools run driver programs end-to-end. Pass your DLTC test with DriveLicenceLab."/>
+    <meta name="keywords" content="DriveLicenceLab, K53, driver licence South Africa, DLTC, learner's licence, driving school, K53 test, driver training, SA driving licence, code 8, code 10, K53 study, driving lessons"/>
+    <meta name="author" content="DriveLicenceLab"/>
+    <meta name="robots" content="index, follow"/>
+    <meta name="theme-color" content="#00C9C8"/>
+    <link rel="canonical" href="https://drivelicencelab.co.za"/>
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website"/>
+    <meta property="og:url" content="https://drivelicencelab.co.za"/>
+    <meta property="og:title" content="DriveLicenceLab | SA K53 Driver Training Platform"/>
+    <meta property="og:description" content="South Africa's leading K53 driver training platform. Track your licence readiness, study with AI, and pass your DLTC test. Join DriveLicenceLab today."/>
+    <meta property="og:image" content="https://drivelicencelab.co.za/og-image.png"/>
+    <meta property="og:image:width" content="1200"/>
+    <meta property="og:image:height" content="630"/>
+    <meta property="og:site_name" content="DriveLicenceLab"/>
+    <meta property="og:locale" content="en_ZA"/>
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:url" content="https://drivelicencelab.co.za"/>
+    <meta name="twitter:title" content="DriveLicenceLab | SA K53 Driver Training"/>
+    <meta name="twitter:description" content="South Africa's leading K53 driver training platform. Study K53, track readiness, pass your DLTC test."/>
+    <meta name="twitter:image" content="https://drivelicencelab.co.za/og-image.png"/>
+
+    <!-- Structured Data / Schema.org -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "EducationalOrganization",
+      "name": "DriveLicenceLab",
+      "url": "https://drivelicencelab.co.za",
+      "logo": "https://drivelicencelab.co.za/logo.webp",
+      "description": "South Africa's leading K53 driver training platform for students, instructors and driving schools.",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "ZA"
+      },
+      "sameAs": [],
+      "offers": {
+        "@type": "Offer",
+        "name": "K53 Driver Training Programme",
+        "description": "4-week structured K53 driver training with theory, practical sessions and DLTC test preparation.",
+        "areaServed": "South Africa"
+      }
+    }
+    </script>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+
+    <style>
+      *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+      html { font-size: 16px; scroll-behavior: smooth; }
+
+      body {
+        font-family: 'Space Grotesk', sans-serif;
+        background: #0D1117;
+        color: #E6EDF3;
+        min-height: 100vh;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100vh;
+      }
+
+      /* ── Mobile first (default) ── */
+      .app-container {
+        max-width: 480px;
+        margin: 0 auto;
+      }
+
+      /* ── Tablet (768px+) ── */
+      @media (min-width: 768px) {
+        html { font-size: 17px; }
+        .app-container {
+          max-width: 720px;
+        }
+        .grid-2 { grid-template-columns: 1fr 1fr !important; }
+        .grid-3 { grid-template-columns: 1fr 1fr 1fr !important; }
+        .hide-tablet { display: none !important; }
+        .show-tablet { display: flex !important; }
+      }
+
+      /* ── Desktop (1024px+) ── */
+      @media (min-width: 1024px) {
+        html { font-size: 16px; }
+        body { background: #080D13; }
+        #root {
+          display: flex;
+          align-items: flex-start;
+          justify-content: center;
+          min-height: 100vh;
+          padding: 0;
+        }
+        .app-container {
+          max-width: 1200px;
+          width: 100%;
+          display: grid;
+          grid-template-columns: 260px 1fr;
+          min-height: 100vh;
+        }
+        .bottom-nav-mobile { display: none !important; }
+        .sidebar-desktop { display: flex !important; }
+        .main-content {
+          padding: 32px 40px !important;
+          max-width: 900px;
+        }
+      }
+
+      /* ── Large Desktop (1280px+) ── */
+      @media (min-width: 1280px) {
+        .app-container {
+          grid-template-columns: 280px 1fr 320px;
+        }
+        .right-panel { display: block !important; }
+      }
+
+      /* Scrollbar */
+      ::-webkit-scrollbar { width: 4px; height: 4px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: #30363D; border-radius: 4px; }
+
+      /* Touch improvements */
+      button, a { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+
+      /* Safe area for notched phones */
+      .bottom-nav-mobile {
+        padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

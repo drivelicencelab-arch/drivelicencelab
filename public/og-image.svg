@@ -1,0 +1,23 @@
+<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0D2137"/>
+      <stop offset="100%" style="stop-color:#0D1117"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" style="stop-color:rgba(0,201,200,0.3)"/>
+      <stop offset="100%" style="stop-color:rgba(0,0,0,0)"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <ellipse cx="600" cy="200" rx="500" ry="300" fill="url(#glow)"/>
+  <text x="600" y="220" font-family="Arial" font-weight="900" font-size="80" fill="white" text-anchor="middle" letter-spacing="-2">DriveLicenceLab</text>
+  <text x="600" y="290" font-family="Arial" font-size="28" fill="rgba(255,255,255,0.7)" text-anchor="middle">SA K53 Driver Training Platform</text>
+  <text x="320" y="400" font-family="Arial" font-weight="900" font-size="48" fill="#00C9C8" text-anchor="middle">92%</text>
+  <text x="320" y="435" font-family="Arial" font-size="18" fill="rgba(255,255,255,0.6)" text-anchor="middle">Pass Rate</text>
+  <text x="600" y="400" font-family="Arial" font-weight="900" font-size="48" fill="#00C9C8" text-anchor="middle">4 Wks</text>
+  <text x="600" y="435" font-family="Arial" font-size="18" fill="rgba(255,255,255,0.6)" text-anchor="middle">To Licence</text>
+  <text x="880" y="400" font-family="Arial" font-weight="900" font-size="48" fill="#00C9C8" text-anchor="middle">24/7</text>
+  <text x="880" y="435" font-family="Arial" font-size="18" fill="rgba(255,255,255,0.6)" text-anchor="middle">AI Tutor</text>
+  <text x="600" y="540" font-family="Arial" font-size="20" fill="rgba(255,255,255,0.4)" text-anchor="middle">drivelicencelab.co.za</text>
+</svg>
