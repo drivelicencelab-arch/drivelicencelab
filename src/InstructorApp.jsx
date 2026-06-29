@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, lazy, Suspense } from 'react'
 import { supabase } from './supabase.js'
 import { T, GlassCard, NeuBtn, Input, Alert, EmptyState, StatCard, BottomNav, AppHeader, Badge, ProgressBar, TopBar } from './ui.jsx'
+import { InstructorSurgePanel } from './features/matching/LessonMatcher.jsx'
 
 export default function InstructorApp({ profile, onSignOut }) {
   const [tab, setTab] = useState('students')
@@ -153,6 +154,13 @@ export default function InstructorApp({ profile, onSignOut }) {
             ))
           }
         </>)}
+
+
+        {tab === 'surge' && (
+          <Suspense fallback={<div style={{textAlign:'center',padding:32,color:'#8B949E'}}>Loading surge panel…</div>}>
+            <InstructorSurgePanel instructorId={profile.id} />
+          </Suspense>
+        )}
 
         {tab === 'feedback' && (<>
           <TopBar title="My Feedback" subtitle="Student ratings & comments" />
