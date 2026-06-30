@@ -9,14 +9,16 @@ export default function AdminApp({ profile, onSignOut }) {
   const [slots, setSlots] = useState([])
   const [enrollments, setEnrollments] = useState([])
   const [instructors, setInstructors] = useState([])
+  const [allStudents, setAllStudents] = useState([])
   const [schoolId, setSchoolId] = useState(null)
   const [showAddSlot, setShowAddSlot] = useState(false)
   const [showEnroll, setShowEnroll] = useState(false)
   const [ns, setNs] = useState({ name: '', day: 'MONDAY', start: '', end: '', capacity: 20 })
-  const [enForm, setEnForm] = useState({ student_email: '', slot_id: '', instructor_id: '' })
+  const [enForm, setEnForm] = useState({ student_id: '', slot_id: '', instructor_id: '' })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [userSearch, setUserSearch] = useState('')
 
   useEffect(() => { initSchool() }, [])
 
@@ -26,7 +28,7 @@ export default function AdminApp({ profile, onSignOut }) {
       const { data } = await supabase.from('schools').insert({ name: 'DriveLicenceLab School', admin_id: profile.id }).select().single()
       sc = data
     }
-    if (sc) { setSchoolId(sc.id); loadSlots(sc.id); loadEnrollments(sc.id); loadInstructors() }
+    if (sc) { setSchoolId(sc.id); loadSlots(sc.id); loadEnrollments(sc.id); loadInstructors(); loadAllStudents() }
   }
 
   const loadSlots = async (sid) => {
@@ -36,14 +38,21 @@ export default function AdminApp({ profile, onSignOut }) {
 
   const loadEnrollments = async (sid) => {
     const slotIds = (await supabase.from('time_slots').select('id').eq('school_id', sid)).data?.map(s => s.id) || []
-    if (slotIds.length === 0) return
+    if (slotIds.length === 0) { setEnrollments([]); return }
     const { data } = await supabase.from('enrollments').select('*, profiles!student_id(full_name, email), time_slots(name, day), profiles!instructor_id(full_name)').in('slot_id', slotIds)
     if (data) setEnrollments(data)
   }
 
   const loadInstructors = async () => {
-    const { data } = await supabase.from('profiles').select('*').eq('role', 'instructor')
+    const { data, error } = await supabase.from('profiles').select('*').eq('role', 'instructor').order('full_name')
+    if (error) console.error('loadInstructors error:', error)
     if (data) setInstructors(data)
+  }
+
+  const loadAllStudents = async () => {
+    const { data, error } = await supabase.from('profiles').select('*').eq('role', 'student').order('full_name')
+    if (error) console.error('loadAllStudents error:', error)
+    if (data) setAllStudents(data)
   }
 
   const addSlot = async () => {
@@ -67,16 +76,14 @@ export default function AdminApp({ profile, onSignOut }) {
   }
 
   const enrollStudent = async () => {
-    if (!enForm.student_email || !enForm.slot_id) { setError('Email and slot are required.'); return }
+    if (!enForm.student_id || !enForm.slot_id) { setError('Select a student and slot.'); return }
     setLoading(true); setError('')
-    const { data: student } = await supabase.from('profiles').select('id').eq('email', enForm.student_email).single()
-    if (!student) { setError('Student not found. They must sign up first.'); setLoading(false); return }
     const { error } = await supabase.from('enrollments').insert({
-      student_id: student.id, slot_id: enForm.slot_id,
+      student_id: enForm.student_id, slot_id: enForm.slot_id,
       instructor_id: enForm.instructor_id || null, status: 'active'
     })
-    if (error) setError(error.message === 'duplicate key value violates unique constraint "enrollments_student_id_slot_id_key"' ? 'Student already enrolled in this slot.' : error.message)
-    else { setSuccess('Student enrolled successfully!'); setEnForm({ student_email: '', slot_id: '', instructor_id: '' }); setShowEnroll(false); loadEnrollments(schoolId) }
+    if (error) setError(error.message.includes('duplicate') ? 'Student already enrolled in this slot.' : error.message)
+    else { setSuccess('Student enrolled successfully!'); setEnForm({ student_id: '', slot_id: '', instructor_id: '' }); setShowEnroll(false); loadEnrollments(schoolId) }
     setLoading(false)
   }
 
@@ -91,7 +98,8 @@ export default function AdminApp({ profile, onSignOut }) {
 
   const TABS = [
     { id: 'dashboard', icon: '📊', label: 'Dashboard' },
-    { id: 'students', icon: '👥', label: 'Students' },
+    { id: 'users', icon: '🗂️', label: 'All Users' },
+    { id: 'students', icon: '👥', label: 'Enrolled' },
     { id: 'slots', icon: '⏰', label: 'Slots' },
     { id: 'scheduling', icon: '📅', label: 'Schedule' },
     { id: 'bulk', icon: '📤', label: 'Bulk' },
@@ -136,6 +144,100 @@ export default function AdminApp({ profile, onSignOut }) {
           {enrollments.length === 0 && <EmptyState icon="👥" title="No enrolments yet" subtitle="Enrol your first student to get started." action={() => { setTab('students'); setShowEnroll(true) }} actionLabel="Enrol Student" />}
         </>)}
 
+
+        {tab === 'users' && (<>
+          <TopBar title="All Registered Users" subtitle={`${allStudents.length} students · ${instructors.length} instructors`} />
+          <Input
+            value={userSearch}
+            onChange={e => setUserSearch(e.target.value)}
+            placeholder="🔍 Search by name or email…"
+          />
+
+          {/* Instructors section */}
+          <div style={{ fontFamily: "'Poppins',sans-serif", fontWeight: 700, color: T.green, fontSize: 15, margin: '20px 0 12px', display: 'flex', alignItems: 'center', gap: 8 }}>
+            👨‍🏫 Instructors ({instructors.length})
+          </div>
+          {instructors.filter(i =>
+            !userSearch || i.full_name?.toLowerCase().includes(userSearch.toLowerCase()) || i.email?.toLowerCase().includes(userSearch.toLowerCase())
+          ).length === 0 ? (
+            <EmptyState icon="👨‍🏫" title="No instructors yet" subtitle="Instructors will appear here once they sign up." />
+          ) : (
+            instructors.filter(i =>
+              !userSearch || i.full_name?.toLowerCase().includes(userSearch.toLowerCase()) || i.email?.toLowerCase().includes(userSearch.toLowerCase())
+            ).map((inst, i) => {
+              const assignedCount = enrollments.filter(e => e.instructor_id === inst.id).length
+              return (
+                <GlassCard key={i} style={{ marginBottom: 10 }} glow={T.green}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <div style={{ width: 40, height: 40, borderRadius: '50%', background: T.green + '22', border: `1px solid ${T.green}44`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>👨‍🏫</div>
+                      <div>
+                        <div style={{ fontWeight: 700, color: T.text, fontSize: 14 }}>{inst.full_name}</div>
+                        <div style={{ fontSize: 12, color: T.textSub }}>{inst.email}</div>
+                      </div>
+                    </div>
+                    <Badge label={`${assignedCount} students`} color={T.green} />
+                  </div>
+                </GlassCard>
+              )
+            })
+          )}
+
+          {/* Students section */}
+          <div style={{ fontFamily: "'Poppins',sans-serif", fontWeight: 700, color: T.teal, fontSize: 15, margin: '24px 0 12px', display: 'flex', alignItems: 'center', gap: 8 }}>
+            🎓 Students ({allStudents.length})
+          </div>
+          {allStudents.filter(s =>
+            !userSearch || s.full_name?.toLowerCase().includes(userSearch.toLowerCase()) || s.email?.toLowerCase().includes(userSearch.toLowerCase())
+          ).length === 0 ? (
+            <EmptyState icon="🎓" title="No students yet" subtitle="Students will appear here once they sign up." />
+          ) : (
+            allStudents.filter(s =>
+              !userSearch || s.full_name?.toLowerCase().includes(userSearch.toLowerCase()) || s.email?.toLowerCase().includes(userSearch.toLowerCase())
+            ).map((stu, i) => {
+              const enrolled = enrollments.find(e => e.student_id === stu.id)
+              return (
+                <GlassCard key={i} style={{ marginBottom: 10 }} glow={enrolled ? T.teal : T.textMuted}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: enrolled ? 0 : 10 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <div style={{ width: 40, height: 40, borderRadius: '50%', background: T.teal + '22', border: `1px solid ${T.teal}44`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>🎓</div>
+                      <div>
+                        <div style={{ fontWeight: 700, color: T.text, fontSize: 14 }}>{stu.full_name}</div>
+                        <div style={{ fontSize: 12, color: T.textSub }}>{stu.email}</div>
+                        {stu.sa_id && <div style={{ fontSize: 11, color: T.textMuted }}>SA ID: {stu.sa_id}</div>}
+                      </div>
+                    </div>
+                    <Badge label={enrolled ? 'Enrolled' : 'Not enrolled'} color={enrolled ? T.green : T.orange} />
+                  </div>
+                  {!enrolled && slots.filter(s => s.active).length > 0 && (
+                    <div style={{ marginTop: 10, display: 'flex', gap: 8 }}>
+                      <select id={`quick-slot-${stu.id}`} defaultValue=""
+                        style={{ flex: 1, background: T.bg, border: `1px solid ${T.border}`, borderRadius: 8, padding: '8px 10px', fontSize: 12, color: T.text, outline: 'none' }}>
+                        <option value="" disabled>Quick enrol into slot…</option>
+                        {slots.filter(s => s.active).map(s => <option key={s.id} value={s.id}>{s.name} — {s.day}</option>)}
+                      </select>
+                      <NeuBtn small color={T.teal} onClick={async () => {
+                        const sel = document.getElementById(`quick-slot-${stu.id}`)
+                        if (!sel.value) return
+                        setLoading(true)
+                        const { error } = await supabase.from('enrollments').insert({ student_id: stu.id, slot_id: sel.value, status: 'active' })
+                        if (!error) { setSuccess(`${stu.full_name} enrolled!`); loadEnrollments(schoolId) }
+                        else setError(error.message)
+                        setLoading(false)
+                      }}>Enrol</NeuBtn>
+                    </div>
+                  )}
+                  {enrolled && (
+                    <div style={{ marginTop: 8, fontSize: 12, color: T.teal }}>
+                      📅 {enrolled.time_slots?.name} · {enrolled.time_slots?.day}
+                    </div>
+                  )}
+                </GlassCard>
+              )
+            })
+          )}
+        </>)}
+
         {tab === 'students' && (<>
           <TopBar title="Students" subtitle={`${totalEnrolled} enrolments`} action={() => setShowEnroll(true)} actionLabel="+ Enrol" />
           <Alert msg={error} /><Alert msg={success} type="success" />
@@ -143,7 +245,15 @@ export default function AdminApp({ profile, onSignOut }) {
           {showEnroll && (
             <GlassCard style={{ marginBottom: 16, border: `2px solid ${T.green}44` }}>
               <div style={{ fontFamily: "'Poppins',sans-serif", fontWeight: 700, color: T.text, marginBottom: 14 }}>Enrol a Student</div>
-              <Input label="Student Email" value={enForm.student_email} onChange={e => setEnForm({ ...enForm, student_email: e.target.value })} placeholder="student@email.com" required icon="✉️" />
+              <div style={{ marginBottom: 14 }}>
+                <label style={{ display: 'block', fontWeight: 600, color: T.textSub, marginBottom: 8, fontSize: 13, textTransform: 'uppercase', letterSpacing: '.5px' }}>Student <span style={{ color: T.red }}>*</span></label>
+                <select value={enForm.student_id} onChange={e => setEnForm({ ...enForm, student_id: e.target.value })}
+                  style={{ width: '100%', background: T.bgCard, border: `1.5px solid ${T.border}`, borderRadius: 12, padding: '13px 14px', fontSize: 15, color: T.text, outline: 'none' }}>
+                  <option value="">Select a registered student…</option>
+                  {allStudents.map(s => <option key={s.id} value={s.id}>{s.full_name} — {s.email}</option>)}
+                </select>
+                {allStudents.length === 0 && <div style={{ fontSize: 12, color: T.orange, marginTop: 6 }}>No students have signed up yet.</div>}
+              </div>
               <div style={{ marginBottom: 14 }}>
                 <label style={{ display: 'block', fontWeight: 600, color: T.textSub, marginBottom: 8, fontSize: 13, textTransform: 'uppercase', letterSpacing: '.5px' }}>Time Slot <span style={{ color: T.red }}>*</span></label>
                 <select value={enForm.slot_id} onChange={e => setEnForm({ ...enForm, slot_id: e.target.value })}

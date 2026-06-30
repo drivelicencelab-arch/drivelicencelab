@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, lazy, Suspense } from 'react'
 import { supabase } from './supabase.js'
 import { T } from './ui.jsx'
 import AuthScreen from './AuthScreen.jsx'
@@ -9,6 +9,8 @@ import AdminApp from './AdminApp.jsx'
 import TestOfficerApp from './TestOfficerApp.jsx'
 import SystemAdminApp from './SystemAdminApp.jsx'
 import AmbientThemeProvider from './providers/AmbientThemeProvider.jsx'
+
+const CinematicLanding = lazy(() => import('./landing/CinematicLanding.jsx'))
 
 const Loader = () => (
   <div style={{
@@ -33,6 +35,7 @@ export default function App() {
   const [loading, setLoading] = useState(true)
   const [onboarded, setOnboarded] = useState(false)
   const [readinessScore, setReadinessScore] = useState(0)
+  const [showLanding, setShowLanding] = useState(true)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -94,6 +97,16 @@ export default function App() {
   }
 
   if (loading) return <Loader />
+
+  // Show cinematic landing page first (unless already logged in)
+  if (!session && showLanding) {
+    return (
+      <Suspense fallback={<Loader />}>
+        <CinematicLanding onEnterApp={() => setShowLanding(false)} />
+      </Suspense>
+    )
+  }
+
   if (!session) return <AuthScreen />
   if (profile && !onboarded && profile.role === 'student') {
     return <Onboarding user={session.user} onDone={() => { setOnboarded(true); loadProfile(session.user.id) }} />
